@@ -1,6 +1,5 @@
 import streamlit as st
 import json
-import speech_recognition as sr
 import matplotlib.pyplot as plt
 import pandas as pd
 import google.generativeai as genai
