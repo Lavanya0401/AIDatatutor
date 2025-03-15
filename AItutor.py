@@ -8,7 +8,7 @@ import sys
 import graphviz
 from dotenv import load_dotenv
 import os
-import matplotlib.pyplot as plt
+
 
 # ✅ Securely Fetch API Key from Streamlit Secrets
 API_KEY = st.secrets.get("GEMINI_API_KEY")
