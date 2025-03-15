@@ -29,17 +29,17 @@ def get_ai_response(user_input):
     except Exception as e:
         return f"⚠️ API Error: {str(e)}"
 
-# ✅ Load & Save Chat History
+# ✅ Load & Handle Chat History Errors
 def load_chat_history():
+    if not os.path.exists("chat_history.json"):
+        with open("chat_history.json", "w") as f:
+            json.dump([], f)  # Create empty JSON file
+
     try:
         with open("chat_history.json", "r") as f:
             return json.load(f)
-    except FileNotFoundError:
-        return []
-
-def save_chat_history():
-    with open("chat_history.json", "w") as f:
-        json.dump(st.session_state.chat_history, f, indent=4)
+    except json.JSONDecodeError:
+        return []  # Return empty chat history if file is corrupt
 
 # ✅ Load User Preferences
 if "dark_mode" not in st.session_state:
