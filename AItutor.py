@@ -93,7 +93,7 @@ if st.sidebar.button("🗑 Clear Chat History"):
     st.session_state.chat_history = []
     save_chat_history()
 if st.sidebar.button("📥 Download Chat History"):
-    formatted_chat = "\n".join([f"**{st.session_state.username}:** {q}\n**AI:** {a}" for q, a in st.session_state.chat_history])
+    formatted_chat = "\n".join([f"**{chat['username']} ({chat['role']}):** {chat['message']}" for chat in st.session_state.chat_history])
     st.sidebar.download_button(label="Download", data=formatted_chat, file_name="chat_history.txt", mime="text/plain")
 
 st.title("🧠 Conversational AI Data Science Tutor")
@@ -108,9 +108,17 @@ quick_questions = [
 cols = st.columns(len(quick_questions))
 for idx, question in enumerate(quick_questions):
     if cols[idx].button(question):
-        st.session_state.chat_history.append((st.session_state.username, question))
+        st.session_state.chat_history.append({
+            "username": st.session_state.username,
+            "role": st.session_state.role,
+            "message": question
+        })
         response = get_ai_response(question)
-        st.session_state.chat_history.append(("assistant", response))
+        st.session_state.chat_history.append({
+            "username": "AI Assistant",
+            "role": "AI",
+            "message": response
+        })
         save_chat_history()
         st.rerun()
 
@@ -118,15 +126,30 @@ for idx, question in enumerate(quick_questions):
 st.subheader("🗨 Chat")
 chat_container = st.container()
 with chat_container:
-    for role, text in st.session_state.chat_history:
-        st.markdown(f"**{'👤 ' if role == st.session_state.username else '🤖 AI:'}** {text}")
+    for chat in st.session_state.chat_history:
+        username = chat["username"]
+        role = chat["role"]
+        message = chat["message"]
+        icon = "👤" if role in ["User", "Admin"] else "🤖"
+        st.markdown(f"**{icon} {username} ({role}):** {message}")
 
 # ✅ User Input
 user_input = st.chat_input("Ask a Data Science question...")
 if user_input:
-    st.session_state.chat_history.append((st.session_state.username, user_input))
+    st.session_state.chat_history.append({
+        "username": st.session_state.username,
+        "role": st.session_state.role,
+        "message": user_input
+    })
+    
     response = get_ai_response(user_input)
-    st.session_state.chat_history.append(("assistant", response))
+    
+    st.session_state.chat_history.append({
+        "username": "AI Assistant",
+        "role": "AI",
+        "message": response
+    })
+    
     save_chat_history()
     st.rerun()
 
