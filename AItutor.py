@@ -185,6 +185,17 @@ if code_col2.button("Clear Code"):
     st.session_state.code = ""
     st.rerun()
 
+# ✅ Data Science Comparisons
+st.sidebar.title("📊 Data Comparisons")
+data_option = st.sidebar.selectbox("Select comparison", ["None", "ML Models", "Algorithms"])
+comparison_table = {
+    "ML Models": pd.DataFrame({"Model": ["Linear Regression", "Decision Tree", "SVM"], "Accuracy": [85, 78, 82], "Training Time": ["Fast", "Medium", "Slow"]}),
+    "Algorithms": pd.DataFrame({"Algorithm": ["K-Means", "DBSCAN", "Hierarchical"], "Scalability": ["High", "Medium", "Low"], "Use Case": ["Clustering", "Anomaly Detection", "Dendrogram Analysis"]})
+}.get(data_option, None)
+
+if comparison_table is not None:
+    st.table(comparison_table)
+
 # ✅ Data Science Visualizations
 st.sidebar.title("📊 Data Science Visualizations")
 visualization_option = st.sidebar.selectbox("Select visualization", ["None", "Decision Tree", "Neural Network", "K-Means Clustering"])
