@@ -9,3 +9,4 @@ graphviz
 numpy
 flask
 streamlit-aggrid
+matplotlib
