@@ -6,7 +6,6 @@ import google.generativeai as genai
 import io
 import sys
 import graphviz
-from dotenv import load_dotenv
 import os
 
 # ✅ Securely Fetch API Key from Streamlit Secrets
@@ -25,31 +24,35 @@ def get_ai_response(user_input):
     try:
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(user_input)
-        return f"\n- {response.text.replace('\n', '\n- ')}" if response and response.text else "⚠️ Error: AI could not generate a response."
+        return response.text.strip() if response and response.text else "⚠️ AI could not generate a response."
     except Exception as e:
         return f"⚠️ API Error: {str(e)}"
 
-# ✅ Load & Handle Chat History Errors
-def load_chat_history():
-    if not os.path.exists("chat_history.json"):
-        with open("chat_history.json", "w") as f:
-            json.dump([], f)  # Create empty JSON file
+# ✅ Load & Save Chat History
+CHAT_HISTORY_FILE = "chat_history.json"
 
+def load_chat_history():
+    if not os.path.exists(CHAT_HISTORY_FILE):
+        return []
     try:
-        with open("chat_history.json", "r") as f:
+        with open(CHAT_HISTORY_FILE, "r") as f:
             return json.load(f)
     except json.JSONDecodeError:
         return []  # Return empty chat history if file is corrupt
 
-# ✅ Load User Preferences
-if "dark_mode" not in st.session_state:
-    st.session_state.dark_mode = False
+def save_chat_history():
+    with open(CHAT_HISTORY_FILE, "w") as f:
+        json.dump(st.session_state.chat_history, f, indent=4)
+
+# ✅ Initialize Session State Variables
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = load_chat_history()
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-if "role" not in st.session_state:
-    st.session_state.role = "User"
+if "dark_mode" not in st.session_state:
+    st.session_state.dark_mode = False
+if "code" not in st.session_state:
+    st.session_state.code = ""
 
 # ✅ Streamlit Page Config
 st.set_page_config(page_title="AI Data Science Tutor", page_icon="🤖", layout="wide")
@@ -182,20 +185,13 @@ if code_col2.button("Clear Code"):
     st.session_state.code = ""
     st.rerun()
 
-# ✅ Data Science Comparisons
-st.sidebar.title("📊 Data Comparisons")
-data_option = st.sidebar.selectbox("Select comparison", ["None", "ML Models", "Algorithms"])
-comparison_table = {
-    "ML Models": pd.DataFrame({"Model": ["Linear Regression", "Decision Tree", "SVM"], "Accuracy": [85, 78, 82], "Training Time": ["Fast", "Medium", "Slow"]}),
-    "Algorithms": pd.DataFrame({"Algorithm": ["K-Means", "DBSCAN", "Hierarchical"], "Scalability": ["High", "Medium", "Low"], "Use Case": ["Clustering", "Anomaly Detection", "Dendrogram Analysis"]})
-}.get(data_option, None)
-
-if comparison_table is not None:
-    st.table(comparison_table)
-
 # ✅ Data Science Visualizations
 st.sidebar.title("📊 Data Science Visualizations")
 visualization_option = st.sidebar.selectbox("Select visualization", ["None", "Decision Tree", "Neural Network", "K-Means Clustering"])
-visualizations = {"Decision Tree": "digraph G {A -> B; A -> C;}", "Neural Network": "digraph G {A -> B; B -> C; C -> D;}", "K-Means Clustering": "digraph G {Cluster1 -> Point1; Cluster1 -> Point2; Cluster2 -> Point3;}"}
+visualizations = {
+    "Decision Tree": "digraph G {A -> B; A -> C;}",
+    "Neural Network": "digraph G {A -> B; B -> C; C -> D;}",
+    "K-Means Clustering": "digraph G {Cluster1 -> Point1; Cluster1 -> Point2; Cluster2 -> Point3;}"
+}
 if visualization_option in visualizations:
     st.graphviz_chart(visualizations[visualization_option])
