@@ -1,12 +1,8 @@
 streamlit
-langchain
-langchain_google_genai
 google-generativeai
-python-dotenv
 matplotlib
 pandas
-graphviz
 numpy
-flask
-streamlit-aggrid
-matplotlib
+graphviz
+python-dotenv
+fpdf
